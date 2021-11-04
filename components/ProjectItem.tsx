@@ -12,9 +12,9 @@ interface Props {
 
 function ProjectItem ({ project }: Props) {
     return (
-        <Link href={`/project/${project.projectId}`} as={`/project/${project.projectId}`}>
-        {/* <Link href="/project/[id]" as={`/project/${project.projectId}`}></Link> */}
-        {/* understand why square bracket is used for routing and if it is optimal (gives 404 error) */}
+        <Link href="/project/[projectId]" as={`/project/${project.projectId}`}>
+        {/* <Link href={`/project/${project.projectId}`} as={`/project/${project.projectId}`}></Link> */}
+ 
            <a>
                Name: {project.projectName} <br/>
                Project Id: {project.projectId} <br/><br/>

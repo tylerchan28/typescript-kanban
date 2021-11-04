@@ -1,11 +1,14 @@
 import React from "react";
 import styles from "../styles/Layout.module.css";
+import Link from "next/link";
 
 const Layout: React.FC = ({ children }) => {
     return (
         <div className={styles.container}>
             <main className={styles.main}>
-                <h1>TypeScript KanBan</h1>
+                <Link href="/">
+                    <h1 style={{cursor: "pointer"}}>TypeScript KanBan</h1>
+                </Link>
                 <div>{children}</div>
             </main>
         </div>
