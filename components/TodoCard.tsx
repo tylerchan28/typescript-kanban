@@ -8,15 +8,6 @@ interface Props {
 
 function TodoCard(props: Props) {
 
-    // const dragStartHandler = (event: React.DragEvent<HTMLDivElement>) => {
-    //     const id = (event.target as HTMLDivElement).id;
-    //     event.dataTransfer!.setData("text/plain", id.toString());
-    //     event.dataTransfer!.effectAllowed = "move";
-    //     console.log("drag start")
-    // }
-
-    // const dragEndHandler = (_: React.DragEvent<HTMLDivElement>) => { console.log("drag end") }
-
     return (
         <Draggable key={props.todo.id.toString()} draggableId={props.todo.id.toString()} index={props.index}>
             {(provided) => (

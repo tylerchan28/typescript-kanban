@@ -4,86 +4,104 @@ import projectFixture from "../../fixtures/projectExample";
 import styles from "../../styles/project.module.css";
 import { Project } from "../../models/project-model";
 import TodoCard from "../../components/TodoCard";
-import { DragDropContext, Droppable, resetServerContext } from "react-beautiful-dnd";
+import { DragDropContext, Droppable, DropResult, resetServerContext } from "react-beautiful-dnd";
+import { Card } from "../../models/card-model";
+
 
 interface Props {
   project: Project;
 }
-// for todos, inprogress, completed arrays, map the objects to a component (make later)
-// those components need to be draggable and have the logic to switch around the statuses
+ // to support between columns, use if checks with result.destination and remove using result.source
 const project = ({ project }: Props) => {
   const router = useRouter();
   const { projectId } = router.query;
 
   const [todos, updateTodos] = useState(project.todo)
+  const [inProgress, updateInProgress] = useState(project.inProgress)
+  const [completed, updateCompleted] = useState(project.completed)
 
-  const handleDragEndSameColumn = (result: any) => {
-    console.log(result)
-    if (!result.destination) {
-        return;
+  const getList = (id: string) => {
+    if (id === "todos") {
+        return todos;
+    } 
+    if (id === "in-progress") {
+        return inProgress
     }
-    const items = Array.from(todos);
-    const [reorderedItem] = items.splice(result.source.index, 1)
-    items.splice(result.destination.index, 0, reorderedItem)
-    updateTodos(items)
-    console.log(todos)
-    // to support between columns, use if checks with result.destination and remove using result.source
+    if (id === "completed") {
+        return completed
+    }
+  }
+
+  const reorderSection = (list: Card[] | undefined, startIndex: number, endIndex: number) => {
+    const result = Array.from(list!);
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+    return result;
+  }
+
+  const handleDragEnd = (result: DropResult) => {
+    const { destination, source } = result;
+    if (!destination) return;
+    if (source.droppableId === destination.droppableId) {
+        switch (source.droppableId) {
+            case "todos":
+                updateTodos(reorderSection(todos, source.index, destination.index))
+                console.log(todos)
+                break
+            case "in-progress":
+                updateInProgress(reorderSection(inProgress, source.index, destination.index))
+                console.log(inProgress)
+                break
+            case "completed":
+                updateCompleted(reorderSection(completed, source.index, destination.index))
+                console.log(completed)
+                break
+        }
+    } 
   }
 
   return (
-    
     <div>
       <div>{project.projectName}</div>
       <div>Project {projectId}</div>
-      <div className={styles.main}>
-        <div>
-          <div>To Do</div>
-          <button>Add todo</button>
-          <DragDropContext onDragEnd={handleDragEndSameColumn}>
+      <div className={styles.container}>
+          <DragDropContext onDragEnd={handleDragEnd}>
               <Droppable droppableId="todos">
                   {(provided) => 
-                    <ul className="todos" {...provided.droppableProps} ref={provided.innerRef}>
+                    <div className={styles.todos} {...provided.droppableProps} ref={provided.innerRef}>
+                        <div>To Do</div>
                         {todos.map((todo, index) => (
                             <TodoCard todo={todo} key={todo.id} index={index}/>
                         ))}
                         {provided.placeholder}
-                    </ul>
+                    </div>
                   }
               </Droppable>
-          </DragDropContext>
-        </div>
-        <div className={styles.status}>
-          <div>In Progress</div>
-          <DragDropContext onDragEnd={() => console.log("yes")}>
-              <Droppable droppableId="todos">
+              <Droppable droppableId="in-progress">
                   {(provided) => 
-                    <ul className="todos" {...provided.droppableProps} ref={provided.innerRef}>
-                        {project.inProgress.map((todo, index) => (
+                    <div className={styles.todos} {...provided.droppableProps} ref={provided.innerRef}>
+                        <div>In Progress</div>
+                        {inProgress.map((todo, index) => (
                             <TodoCard todo={todo} key={todo.id} index={index}/>
                         ))}
                         {provided.placeholder}
-                    </ul>
+                    </div>
                   }
               </Droppable>
-          </DragDropContext>
-        </div>
-        <div className={styles.status}>
-          <div>Completed</div>
-          <DragDropContext onDragEnd={() => console.log("yes")}>
-              <Droppable droppableId="todos">
+              <Droppable droppableId="completed">
                   {(provided) => 
-                    <ul className="todos" {...provided.droppableProps} ref={provided.innerRef}>
-                        {project.completed.map((todo, index) => (
+                    <div className={styles.todos} {...provided.droppableProps} ref={provided.innerRef}>
+                        <div>Completed</div>
+                        {completed.map((todo, index) => (
                             <TodoCard todo={todo} key={todo.id} index={index}/>
                         ))}
                         {provided.placeholder}
-                    </ul>
+                    </div>
                   }
               </Droppable>
           </DragDropContext>
-        </div>
       </div>
-    </div>
+      </div>
   );
 };
 
@@ -105,3 +123,14 @@ export const getServerSideProps = (context: any) => {
 };
 
 export default project;
+
+
+// const handleDragEnd = (result: any) => {
+//     if (!result.destination) {
+//         return;
+//     }
+//     const items = Array.from(todos);
+//     const [reorderedItem] = items.splice(result.source.index, 1)
+//     items.splice(result.destination.index, 0, reorderedItem)
+//     updateTodos(items)
+//   }
