@@ -4,9 +4,9 @@ export default [{
     projectId: 1,
     userId: 1,
     projectName: "test",
-    todo: [{ id: 1, description: "Implement draggable", status: Status[0]} ],
-    inProgress: [{ id: 1, description: "Front end design", status: Status[1]} ],
-    completed: [{ id: 1, description: "Project page skeleton", status: Status[2]}]
+    todo: [{ id: 1, description: "Implement draggable", status: Status[0]}, { id: 2, description: "Test", status: Status[0]} ],
+    inProgress: [{ id: 3, description: "Front end design", status: Status[1]} ],
+    completed: [{ id: 4, description: "Project page skeleton", status: Status[2]}]
 },
 {
     projectId: 2,
