@@ -12,7 +12,7 @@ import axios from "axios";
 interface Props {
   project: Project;
 }
- // to support between columns, use if checks with result.destination and remove using result.source
+
 const Project = ({ project }: Props) => {
   const router = useRouter();
   const { projectId } = router.query;
@@ -36,7 +36,6 @@ const Project = ({ project }: Props) => {
     const result = Array.from(list!);
     const [removed] = result.splice(startIndex, 1);
     result.splice(endIndex, 0, removed);
-    console.log(result)
     return result;
   }
 
@@ -50,7 +49,6 @@ const Project = ({ project }: Props) => {
     const result: any = {};
     result[droppableSource.droppableId] = sourceClone;
     result[droppableDestination.droppableId] = destinationClone;
-
     return result;
   }
 // After every change, don't forget to update in the database
@@ -71,6 +69,9 @@ const Project = ({ project }: Props) => {
         }
     } else {
         const result = move(getList(source.droppableId), getList(destination.droppableId), source, destination)
+        
+        
+        
         const newTodos = result.todos ? result.todos : undefined;
         const newInProgress = result["in-progress"] ? result["in-progress"] : undefined;
         const newCompleted = result.completed ? result.completed : undefined;
@@ -144,13 +145,13 @@ const Project = ({ project }: Props) => {
 // Used to get data from server
 // Filter the project that matches the context.params.projectId from the database
 // need to use axios/async function
-export const getServerSideProps = (context: any) => {
+export const getServerSideProps = async (context: any) => {
+  resetServerContext()
   const res = projectFixture;
   const projectArr = res.filter(
     (data) => data.projectId === parseInt(context.params.projectId)
-  );
+  ); 
   const project = projectArr[0];
-  resetServerContext()
   return {
     props: {
       project,

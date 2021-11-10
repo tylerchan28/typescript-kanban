@@ -13,8 +13,6 @@ interface Props {
 function ProjectItem ({ project }: Props) {
     return (
         <Link href="/project/[projectId]" as={`/project/${project.projectId}`}>
-        {/* <Link href={`/project/${project.projectId}`} as={`/project/${project.projectId}`}></Link> */}
- 
            <a>
                Name: {project.projectName} <br/>
                Project Id: {project.projectId} <br/><br/>

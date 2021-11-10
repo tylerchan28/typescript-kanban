@@ -9,6 +9,7 @@ interface Props {
 }
 
 export default function Home({ projects }: Props) {
+
   return (
     <div>
       <Head>
