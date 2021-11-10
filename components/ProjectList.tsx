@@ -22,7 +22,7 @@ function Project({ projects }: Props) {
           inProgress: [],
           completed: []
       }
-      projects.push(project) // need to change state for rerender
+      projects.push(project) 
       projectNameRef.current!.value = ""
     }
     return (

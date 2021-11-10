@@ -25,7 +25,7 @@ app.prepare().then(() => {
       console.log('connected to PostgreSQL');
     }
   });
-  
+
   const server = express();
 
   server.get("/test", (req, res) => {
