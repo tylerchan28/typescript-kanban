@@ -6,16 +6,16 @@ import { Project } from "../../models/project-model";
 import TodoCard from "../../components/TodoCard";
 import { DragDropContext, DraggableLocation, Droppable, DropResult, resetServerContext } from "react-beautiful-dnd";
 import { Card } from "../../models/card-model";
+import axios from "axios";
 
 
 interface Props {
   project: Project;
 }
- // to support between columns, use if checks with result.destination and remove using result.source
-const project = ({ project }: Props) => {
+
+const Project = ({ project }: Props) => {
   const router = useRouter();
   const { projectId } = router.query;
-
   const [todos, updateTodos] = useState(project.todo)
   const [inProgress, updateInProgress] = useState(project.inProgress)
   const [completed, updateCompleted] = useState(project.completed)
@@ -36,7 +36,6 @@ const project = ({ project }: Props) => {
     const result = Array.from(list!);
     const [removed] = result.splice(startIndex, 1);
     result.splice(endIndex, 0, removed);
-    console.log(result)
     return result;
   }
 
@@ -50,7 +49,6 @@ const project = ({ project }: Props) => {
     const result: any = {};
     result[droppableSource.droppableId] = sourceClone;
     result[droppableDestination.droppableId] = destinationClone;
-
     return result;
   }
 // After every change, don't forget to update in the database
@@ -71,6 +69,9 @@ const project = ({ project }: Props) => {
         }
     } else {
         const result = move(getList(source.droppableId), getList(destination.droppableId), source, destination)
+        
+        
+        
         const newTodos = result.todos ? result.todos : undefined;
         const newInProgress = result["in-progress"] ? result["in-progress"] : undefined;
         const newCompleted = result.completed ? result.completed : undefined;
@@ -87,6 +88,14 @@ const project = ({ project }: Props) => {
     } 
   }
 
+  const serverTest = () => {
+    console.log("working")
+    axios.get("http://localhost:3000/test")
+      .then((res) => {
+        console.log(res.data)
+      })
+  }
+
   return (
     <div>
       <div>{project.projectName}</div>
@@ -97,6 +106,7 @@ const project = ({ project }: Props) => {
                   {(provided) => 
                     <div className={styles.todos} {...provided.droppableProps} ref={provided.innerRef}>
                         <div>To Do</div>
+                        <button onClick={serverTest}>server test</button>
                         {todos.map((todo, index) => (
                             <TodoCard todo={todo} key={todo.id} index={index}/>
                         ))}
@@ -135,13 +145,13 @@ const project = ({ project }: Props) => {
 // Used to get data from server
 // Filter the project that matches the context.params.projectId from the database
 // need to use axios/async function
-export const getServerSideProps = (context: any) => {
+export const getServerSideProps = async (context: any) => {
+  resetServerContext()
   const res = projectFixture;
   const projectArr = res.filter(
     (data) => data.projectId === parseInt(context.params.projectId)
-  );
+  ); 
   const project = projectArr[0];
-  resetServerContext()
   return {
     props: {
       project,
@@ -149,5 +159,5 @@ export const getServerSideProps = (context: any) => {
   };
 };
 
-export default project;
+export default Project;
 
