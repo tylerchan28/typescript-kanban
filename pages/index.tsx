@@ -3,13 +3,12 @@ import Head from 'next/head'
 import ProjectList from '../components/ProjectList'
 import exampleProjects from "../fixtures/projectExample";
 import { Project } from '../models/project-model';
-
+import axios from "axios";
 interface Props {
   projects: Project[]
 }
 
 export default function Home({ projects }: Props) {
-
   return (
     <div>
       <Head>
@@ -21,6 +20,9 @@ export default function Home({ projects }: Props) {
         <div>
           <ProjectList projects={projects}/>
         </div>
+        <button>
+          <a href="/auth/google">Login</a>
+        </button>
       </div>
     </div>
   )
