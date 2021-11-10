@@ -6,16 +6,16 @@ import { Project } from "../../models/project-model";
 import TodoCard from "../../components/TodoCard";
 import { DragDropContext, DraggableLocation, Droppable, DropResult, resetServerContext } from "react-beautiful-dnd";
 import { Card } from "../../models/card-model";
+import axios from "axios";
 
 
 interface Props {
   project: Project;
 }
  // to support between columns, use if checks with result.destination and remove using result.source
-const project = ({ project }: Props) => {
+const Project = ({ project }: Props) => {
   const router = useRouter();
   const { projectId } = router.query;
-
   const [todos, updateTodos] = useState(project.todo)
   const [inProgress, updateInProgress] = useState(project.inProgress)
   const [completed, updateCompleted] = useState(project.completed)
@@ -87,6 +87,14 @@ const project = ({ project }: Props) => {
     } 
   }
 
+  const serverTest = () => {
+    console.log("working")
+    axios.get("http://localhost:3000/test")
+      .then((res) => {
+        console.log(res.data)
+      })
+  }
+
   return (
     <div>
       <div>{project.projectName}</div>
@@ -97,6 +105,7 @@ const project = ({ project }: Props) => {
                   {(provided) => 
                     <div className={styles.todos} {...provided.droppableProps} ref={provided.innerRef}>
                         <div>To Do</div>
+                        <button onClick={serverTest}>server test</button>
                         {todos.map((todo, index) => (
                             <TodoCard todo={todo} key={todo.id} index={index}/>
                         ))}
@@ -149,5 +158,5 @@ export const getServerSideProps = (context: any) => {
   };
 };
 
-export default project;
+export default Project;
 
