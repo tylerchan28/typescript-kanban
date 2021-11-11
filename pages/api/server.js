@@ -5,8 +5,9 @@ const { Client } = require('pg');
 const next = require('next');
 const passport = require('passport');
 const session = require("express-session");
+const { RSA_NO_PADDING } = require('constants');
 
-
+// consider using Sequelize ORM
 
 const server = express();
 const port = 3000;
@@ -72,25 +73,35 @@ app.prepare().then(() => {
         failureRedirect: '/error',
     }),
     function (req, res) {
-        res.redirect('/success')
+      client.query('INSERT INTO users (email) VALUES ($1) ON CONFLICT DO NOTHING', [req.user.email], (err, results) => {
+        if (err) throw err;
+        res.redirect("/projects")
+      })
     }
   )
-    
+  
   server.get("/success", (req, res) => {
-    res.json(`Success ${req.user.email}`)
-    console.log(req.user);
+    client.query('SELECT user_id FROM users WHERE email = ($1)', [req.user.email], (err, results) => {
+      if (err) throw err;
+      res.json(results.rows)
+    })
   })
   
   server.get('/error', (req, res) => res.json("error logging in"));
-
-  server.get("/test", (req, res) => {
-    console.log("connected")
-    res.json("logs on client")
-  });
   
   server.get("*", (req, res) => {
     return handle(req, res);
   });
+
+  // Projects
+
+  // server.get("/get-projects", (req, res) => {
+  //   const projects = client.query("SELECT * FROM projects WHERE user_id = ($1)", [req.body.id], (err, res) => {
+  //     if (err) throw err;
+  //     res.json(projects)
+  //   })
+  // })
+
 
   server.listen(port, (err) => {
     if (err) throw err;

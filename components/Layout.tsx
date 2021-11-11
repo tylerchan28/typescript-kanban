@@ -6,7 +6,7 @@ const Layout: React.FC = ({ children }) => {
     return (
         <div className={styles.container}>
             <main className={styles.main}>
-                <Link href="/">
+                <Link href="/projects">
                     <h1 style={{cursor: "pointer"}}>TypeScript KanBan</h1>
                 </Link>
                 <div>{children}</div>

@@ -1,14 +1,7 @@
-import type { NextPage } from 'next'
 import Head from 'next/head'
-import ProjectList from '../components/ProjectList'
-import exampleProjects from "../fixtures/projectExample";
-import { Project } from '../models/project-model';
-import axios from "axios";
-interface Props {
-  projects: Project[]
-}
 
-export default function Home({ projects }: Props) {
+
+export default function Home() {
   return (
     <div>
       <Head>
@@ -17,23 +10,11 @@ export default function Home({ projects }: Props) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className="container">
-        <div>
-          <ProjectList projects={projects}/>
-        </div>
-        <button>
-          <a href="/auth/google">Login</a>
-        </button>
+        Front Page (change to login page?)
       </div>
+      <button>
+          <a href="/auth/google">Login</a>
+      </button>
     </div>
   )
-}
-
-
-export const getStaticProps = () => {
-  const projects: Project[] = exampleProjects;
-  return {
-    props: {
-      projects: projects
-    }
-  }
 }

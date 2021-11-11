@@ -88,14 +88,6 @@ const Project = ({ project }: Props) => {
     } 
   }
 
-  const serverTest = () => {
-    console.log("working")
-    axios.get("http://localhost:3000/test")
-      .then((res) => {
-        console.log(res.data)
-      })
-  }
-
   return (
     <div>
       <div>{project.projectName}</div>
@@ -106,7 +98,6 @@ const Project = ({ project }: Props) => {
                   {(provided) => 
                     <div className={styles.todos} {...provided.droppableProps} ref={provided.innerRef}>
                         <div>To Do</div>
-                        <button onClick={serverTest}>server test</button>
                         {todos.map((todo, index) => (
                             <TodoCard todo={todo} key={todo.id} index={index}/>
                         ))}
