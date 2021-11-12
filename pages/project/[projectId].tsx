@@ -6,7 +6,6 @@ import { Project } from "../../models/project-model";
 import TodoCard from "../../components/TodoCard";
 import { DragDropContext, DraggableLocation, Droppable, DropResult, resetServerContext } from "react-beautiful-dnd";
 import { Card } from "../../models/card-model";
-import axios from "axios";
 
 
 interface Props {
@@ -94,6 +93,7 @@ const Project = ({ project }: Props) => {
       <div>Project {projectId}</div>
       <div className={styles.container}>
           <DragDropContext onDragEnd={handleDragEnd}>
+              {/* Each droppable should become its own list component with a name */}
               <Droppable droppableId="todos">
                   {(provided) => 
                     <div className={styles.todos} {...provided.droppableProps} ref={provided.innerRef}>
@@ -149,6 +149,10 @@ export const getServerSideProps = async (context: any) => {
     },
   };
 };
+// make new list component
+// in here, get lists that correspond to the project id
+// THEN (in another component) get cards that correspond to the list id
+// finally, add logic for moving cards
 
 export default Project;
 

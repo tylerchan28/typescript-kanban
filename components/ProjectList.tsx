@@ -8,14 +8,6 @@ interface Props {
 
 function Project({ projects }: Props) {
     // add types for projects when pulling from db
-    const [projectForm, showProjectForm] = useState(false);
-    const projectNameRef = useRef<HTMLInputElement>(null);
-
-    const onFormSubmit = (e: React.FormEvent) => {
-      e.preventDefault();
-      const projectName = projectNameRef.current!.value;
-      projectNameRef.current!.value = ""
-    }
     return (
         <div>
             {
@@ -25,19 +17,9 @@ function Project({ projects }: Props) {
                     )
                 })
             }
-            <button onClick={() => showProjectForm(!projectForm)}>
-          New Project
-        </button>
-        { projectForm && 
-          <form onSubmit={onFormSubmit}>
-            <input 
-              type="text"
-              ref={projectNameRef}
-            />
-          </form>
-        }
         </div>
     )
 }
+
 
 export default Project;

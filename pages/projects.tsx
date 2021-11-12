@@ -1,15 +1,41 @@
+import { NextApiHandler } from 'next';
 import Head from 'next/head'
 import ProjectList from '../components/ProjectList'
 import { Project } from '../models/project-model';
 const { Client } = require('pg');
+import { useState, useRef, useEffect } from "react";
+import { getUserData } from "./api/user";
+import axios from "axios";
 
 
 interface Props {
   projects: Project[],
-  id: number
+  id: number,
+  addProject: () => void
 }
 function projects({ projects, id }: Props) {
+  const [projectForm, showProjectForm] = useState(false);
+  const [currentProjects, setCurrentProjects] = useState(projects);
 
+  const projectNameRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setCurrentProjects(projects)
+  }, [])
+
+
+  const onFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const submittedProject = ({
+      user_id: id,
+      project_name: projectNameRef.current!.value
+    });
+    setCurrentProjects([...currentProjects, submittedProject]);
+    projectNameRef.current!.value = "";
+    axios.post("http://localhost:3000/add-project", submittedProject, {headers: {
+      'Content-Type': 'application/json'
+    }});
+  }
   return (
     <div>
       <Head>
@@ -19,16 +45,27 @@ function projects({ projects, id }: Props) {
       </Head>
       <div className="container">
         <div>
-          <ProjectList projects={projects}/>
+          <div>User {id}</div>
+          <ProjectList projects={currentProjects}/>
+          <button onClick={() => showProjectForm(!projectForm)}>
+          New Project
+        </button>
+        { projectForm && 
+          <form onSubmit={onFormSubmit}>
+            <input 
+              type="text"
+              ref={projectNameRef}
+            />
+            <button type="submit">Submit</button>
+          </form>
+        }
         </div>
       </div>
     </div>
   )
 }
 
-
 export const getServerSideProps = async (context: any) => {
-  let projects, id: any;
   let client = new Client({
     user: process.env.DB_USER,
     database: process.env.DB_DATABASE,
@@ -43,32 +80,12 @@ export const getServerSideProps = async (context: any) => {
       console.log('connected to PostgreSQL');
     }
   });
-  client.query("SELECT user_id FROM users WHERE email = ($1)", [context.req.user.email], (err: Error, results: any) => {
-    if (err) {console.log(err)};
-    client.query(`SELECT * FROM projects WHERE projects.user_id = ${results.rows[0].user_id}`, (err: Error, results: any) => {
-      if (err) {console.log(err)};
-      projects = results.rows
-    })
-  });
-  const getId = new Promise((resolve, reject) => {
-    resolve(client.query('SELECT user_id FROM users WHERE email = ($1)', [context.req.user.email]));
-  })
-  await getId
-    .then((results: any) => {
-      id = results.rows[0].user_id;
-    });
-  const getProjects = new Promise((resolve, reject) => {
-    resolve(client.query(`SELECT * FROM projects WHERE projects.user_id = ${id}`));
-  })
-  await getProjects
-    .then((results: any) => {
-      projects = results.rows;
-      console.log(projects);
-    });
+  const userData = await getUserData(context.req.user.email, client);
 
   return {
     props: {
-      projects: projects,
+      projects: userData.projects,
+      id: userData.id,
     }
   }
 }

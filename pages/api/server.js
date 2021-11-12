@@ -5,7 +5,7 @@ const { Client } = require('pg');
 const next = require('next');
 const passport = require('passport');
 const session = require("express-session");
-const { RSA_NO_PADDING } = require('constants');
+const bodyParser = require("body-parser");
 
 // consider using Sequelize ORM
 
@@ -38,7 +38,7 @@ app.prepare().then(() => {
       console.log('connected to PostgreSQL');
     }
   });
- 
+  server.use(bodyParser.json());
   // Google Authentication
   const GoogleStrategy = require( 'passport-google-oauth2' ).Strategy;
   server.use(session({ secret: "cats", resave: true, saveUninitialized: true }));
@@ -79,6 +79,14 @@ app.prepare().then(() => {
       })
     }
   )
+
+  server.post("/add-project", (req, res) => {
+    const { user_id, project_name } = req.body;
+    client.query('INSERT INTO projects (user_id, project_name) VALUES ($1, $2)', [user_id, project_name], (err, results) => {
+      if (err) throw err;
+      console.log("added project")
+    })
+  })
   
   server.get("/success", (req, res) => {
     client.query('SELECT user_id FROM users WHERE email = ($1)', [req.user.email], (err, results) => {
@@ -106,5 +114,4 @@ app.prepare().then(() => {
   });
 
 });
-
 
