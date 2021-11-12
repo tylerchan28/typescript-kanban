@@ -3,19 +3,19 @@ import Link from "next/link";
 // Project is an object being passed as props, so must define project as well
 interface Props {
     project: {
-        projectId: number;
+        project_id: number;
         userId: number;
-        projectName: string;
+        project_name: string;
     }
 }
 
 
 function ProjectItem ({ project }: Props) {
     return (
-        <Link href="/project/[projectId]" as={`/project/${project.projectId}`}>
+        <Link href="/project/[projectId]" as={`/project/${project.project_id}`}>
            <a>
-               Name: {project.projectName} <br/>
-               Project Id: {project.projectId} <br/><br/>
+               Name: {project.project_name} <br/>
+               Project Id: {project.project_id} <br/><br/>
            </a>
         </Link>
     )

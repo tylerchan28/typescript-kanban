@@ -14,15 +14,6 @@ function Project({ projects }: Props) {
     const onFormSubmit = (e: React.FormEvent) => {
       e.preventDefault();
       const projectName = projectNameRef.current!.value;
-      const project: Project = {
-          projectName,
-          projectId: 4,
-          userId: 1,
-          todo: [],
-          inProgress: [],
-          completed: []
-      }
-      projects.push(project) 
       projectNameRef.current!.value = ""
     }
     return (
@@ -30,7 +21,7 @@ function Project({ projects }: Props) {
             {
                 projects.map((project: Project) => {
                     return (
-                        <ProjectItem project={project} key={project.projectId} />
+                        <ProjectItem project={project} key={project.project_id} />
                     )
                 })
             }

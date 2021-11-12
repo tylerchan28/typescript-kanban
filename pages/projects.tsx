@@ -1,9 +1,6 @@
 import Head from 'next/head'
 import ProjectList from '../components/ProjectList'
-import exampleProjects from "../fixtures/projectExample";
 import { Project } from '../models/project-model';
-// import { useEffect, useState } from "react";
-import next from 'next';
 const { Client } = require('pg');
 
 
@@ -12,13 +9,6 @@ interface Props {
   id: number
 }
 function projects({ projects, id }: Props) {
-
-  // const [id, setId] = useState("");
-
-  // useEffect(() => {
-  //   axios.get("/success")
-  //     .then((res) => setId(res.data[0].user_id))
-  // }, [id])
 
   return (
     <div>
@@ -39,9 +29,8 @@ function projects({ projects, id }: Props) {
 
 
 export const getServerSideProps = async (context: any) => {
-  let id, projects;
-  console.log(context.req.user.email)
-  const client = new Client({
+  let projects, id: any;
+  let client = new Client({
     user: process.env.DB_USER,
     database: process.env.DB_DATABASE,
     password: process.env.DB_PASSWORD,
@@ -56,17 +45,38 @@ export const getServerSideProps = async (context: any) => {
     }
   });
   client.query("SELECT user_id FROM users WHERE email = ($1)", [context.req.user.email], (err: Error, results: any) => {
-    if (err) throw err;
-    id = results.rows[0].user_id;
-    client.query(`SELECT * FROM projects WHERE projects.user_id = ${id}`, (err: Error, results: any) => {
-      if (err) throw err
+    if (err) {console.log(err)};
+    client.query(`SELECT * FROM projects WHERE projects.user_id = ${results.rows[0].user_id}`, (err: Error, results: any) => {
+      if (err) {console.log(err)};
       projects = results.rows
     })
   });
+  const getId = new Promise((resolve, reject) => {
+    resolve(client.query('SELECT user_id FROM users WHERE email = ($1)', [context.req.user.email]));
+  })
+  await getId
+    .then((results: any) => {
+      id = results.rows[0].user_id;
+    });
+    // .then((results: any) => {
+    //   console.log(results);
+    //   client.query(`SELECT * FROM projects WHERE projects.user_id = ${results}`, (err, result) => {
+    //     if (err) throw err;
+    //     let projects = result.rows;
+    //   })
+    // });
+  const getProjects = new Promise((resolve, reject) => {
+    resolve(client.query(`SELECT * FROM projects WHERE projects.user_id = ${id}`));
+  })
+  await getProjects
+    .then((results: any) => {
+      projects = results.rows;
+      console.log(projects);
+    });
 
   return {
     props: {
-      projects: projects ? projects : [],
+      projects: projects,
     }
   }
 }
@@ -74,3 +84,8 @@ export const getServerSideProps = async (context: any) => {
 export default projects;
 
 // use axios to get projects from the database
+
+
+
+// const userId = await fetch("http://localhost:3000/success");
+// const userIdParsed = userId.json();
