@@ -4,7 +4,7 @@ import Link from "next/link";
 interface Props {
     project: {
         project_id: number;
-        userId: number;
+        user_id: number;
         project_name: string;
     }
 }

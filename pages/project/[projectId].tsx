@@ -90,7 +90,7 @@ const Project = ({ project }: Props) => {
 
   return (
     <div>
-      <div>{project.projectName}</div>
+      <div>{project.project_name}</div>
       <div>Project {projectId}</div>
       <div className={styles.container}>
           <DragDropContext onDragEnd={handleDragEnd}>
