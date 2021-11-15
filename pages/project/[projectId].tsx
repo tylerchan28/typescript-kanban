@@ -6,15 +6,17 @@ import { Project } from "../../models/project-model";
 import TodoCard from "../../components/TodoCard";
 import { DragDropContext, DraggableLocation, Droppable, DropResult, resetServerContext } from "react-beautiful-dnd";
 import { Card } from "../../models/card-model";
+import { List } from "../../models/list-model";
+import StatusList from "../../components/StatusList";
 const { Client } = require("pg");
 
 
 interface Props {
-  project: Project;
-  lists: any
+  lists: List[]
+  cards: Card[]
 }
 
-const Project = ({ project, lists }: Props) => {
+const Project = ({ cards, lists }: Props) => {
   const router = useRouter();
   const { projectId } = router.query;
   // const [todos, updateTodos] = useState(project.todo)
@@ -96,14 +98,17 @@ const Project = ({ project, lists }: Props) => {
       <div className={styles.container}>
           Hello
           {console.log(lists)}
+          {console.log(cards)}
+          <div>
+            {lists.map((list: any) => {
+              <StatusList project_name={list.project_name} list_id={list.list_id} cards={list.cards}/>
+            })}
+          </div>
       </div>
     </div>
   );
 }
 
-// Used to get data from server
-// Filter the project that matches the context.params.projectId from the database
-// need to use axios/async function
 export const getServerSideProps = async (context: any) => {
   resetServerContext()
   let client = new Client({
@@ -120,29 +125,30 @@ export const getServerSideProps = async (context: any) => {
       console.log('connected to PostgreSQL');
     }
   });
-  // const res = projectFixture;
-  // const projectArr = res.filter(
-  //   (data) => data.projectId === parseInt(context.params.projectId)
-  // ); 
-  // const project = projectArr[0];
-  // return {
-  //   props: {
-  //     project,
-  //   },
-  // };
-  let lists;
+
+  let lists, cards;
+  let listIds: any = [];
   const getLists = new Promise((resolve, reject) => {
-    resolve(client.query('SELECT * FROM lists'))
+    resolve(client.query('SELECT * FROM lists WHERE project_id = ($1)', [context.query.projectId]))
   })
 
   await getLists
     .then((results: any) => {
       lists = results.rows
-      console.log(lists)
+      lists.forEach((list: any) => listIds.push(+list.list_id))
+    })
+  const getCards = new Promise((resolve, reject) => {
+    resolve(client.query('SELECT * FROM cards WHERE list_id = ANY($1::int[])', [listIds]))
+  })
+
+  await getCards 
+    .then((results: any) => {
+      cards = results.rows;
     })
   return {
     props: {
-      lists: lists
+      lists: lists,
+      cards: cards
     }
   }
 };

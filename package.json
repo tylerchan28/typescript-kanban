@@ -6,8 +6,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "server": "node pages/api/server.js",
-    "server-test": "nodemon pages/api/server.js"
+    "server": "nodemon pages/api/server.js"
   },
   "dependencies": {
     "@types/react-beautiful-dnd": "^13.1.2",
