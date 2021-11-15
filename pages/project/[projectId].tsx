@@ -94,16 +94,14 @@ const Project = ({ cards, lists }: Props) => {
   return (
     <div>
       {/* <div>{project.project_name}</div> */}
+      {console.log(lists)}
       <div>Project {projectId}</div>
       <div className={styles.container}>
-          Hello
-          {console.log(lists)}
-          {console.log(cards)}
-          <div>
-            {lists.map((list: any) => {
-              <StatusList project_name={list.project_name} list_id={list.list_id} cards={list.cards}/>
-            })}
-          </div>
+            {lists.map((list: any) => (
+             <div>
+                <StatusList list_name={list.list_name} list_id={list.list_id} cards={cards} key={list.list_id}/>
+             </div>
+            ))}
       </div>
     </div>
   );

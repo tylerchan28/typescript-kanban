@@ -1,29 +1,40 @@
 import { Droppable } from "react-beautiful-dnd";
+import { addAbortSignal } from "stream";
+import { Card } from "../models/card-model";
+import projects from "../pages/projects";
 import styles from "../styles/TodoCard.module.css";
 import TodoCard from "./TodoCard";
 
 type Props = {
-    project_name: string
     list_id: number
     cards: any
+    list_name: string
 }
 
-function StatusList(props: Props) {
+function StatusList({ cards, list_name, list_id }: Props) {
+    const listCards = cards.filter((card: Card) => parseInt(card.list_id) === list_id)
     return (
         <div>
-            {/* <Droppable droppableId={props.project_name}>
+            {list_name}
+            {listCards.map(() => (
+                <div>
+                    This is a card
+                </div>
+            ))}
+            {/* <Droppable droppableId={project_name}>
                       {(provided) => 
                         <div className={styles.todos} {...provided.droppableProps} ref={provided.innerRef}>
                             <div>Completed</div>
-                            {cards.map((todo, index) => (
-                                <TodoCard todo={todo} key={todo.id} index={index}/>
+                            {cards.map((cards) => (
+                                <div>
+                                    This is a card
+                                </div>
                             ))}
                             {provided.placeholder}
                             nice
                         </div>
                       }
             </Droppable> */}
-            this is a status list
         </div>
     )
 }
