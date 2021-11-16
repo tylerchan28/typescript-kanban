@@ -1,39 +1,40 @@
 import { useRouter } from "next/router";
-import { useState } from "react";
-import projectFixture from "../../fixtures/projectExample";
+import { useReducer, useCallback } from "react";
 import styles from "../../styles/project.module.css";
 import { Project } from "../../models/project-model";
-import TodoCard from "../../components/TodoCard";
-import { DragDropContext, DraggableLocation, Droppable, DropResult, resetServerContext } from "react-beautiful-dnd";
+import { DragDropContext, resetServerContext } from "react-beautiful-dnd";
 import { Card } from "../../models/card-model";
 import { List } from "../../models/list-model";
 import StatusList from "../../components/StatusList";
 const { Client } = require("pg");
-
+import produce from "immer";
 
 interface Props {
   lists: List[]
   cards: Card[]
 }
 
+const dragReducer = produce((draft, action) => {
+  switch (action.type) {
+    case "MOVE": {
+      draft[action.from] = draft[action.from] || [];
+      draft[action.to] = draft[action.to] || [];
+      const [removed] = draft[action.from].splice(action.fromIndex, 1);
+      draft[action.to].splice(action.toIndex, 0, removed);
+    }
+  }
+});
+
 const Project = ({ cards, lists }: Props) => {
   const router = useRouter();
   const { projectId } = router.query;
-  // const [todos, updateTodos] = useState(project.todo)
-  // const [inProgress, updateInProgress] = useState(project.inProgress)
-  // const [completed, updateCompleted] = useState(project.completed)
+  const [state, dispatch] = useReducer(dragReducer, {
+    items: lists,
+  });
+  // // const [todo, updateTodo] = useState(project.todo)
+  // // const [inProgress, updateInProgress] = useState(project.inProgress)
+  // // const [completed, updateCompleted] = useState(project.completed)
 
-  // const getList = (id: string) => {
-  //   if (id === "todos") {
-  //       return todos;
-  //   } 
-  //   if (id === "in-progress") {
-  //       return inProgress
-  //   }
-  //   if (id === "completed") {
-  //       return completed
-  //   }
-  // }
   
   // const reorderSection = (list: Card[] | undefined, startIndex: number, endIndex: number) => {
   //   const result = Array.from(list!);
@@ -54,53 +55,31 @@ const Project = ({ cards, lists }: Props) => {
   //   result[droppableDestination.droppableId] = destinationClone;
   //   return result;
   // }
-// After every change, don't forget to update in the database
-  // const handleDragEnd = (result: DropResult) => {
-  //   const { destination, source } = result;
-  //   if (!destination) return;
-  //   if (source.droppableId === destination.droppableId) {
-  //       switch (source.droppableId) {
-  //           case "todos":
-  //               updateTodos(reorderSection(todos, source.index, destination.index))
-  //               break
-  //           case "in-progress":
-  //               updateInProgress(reorderSection(inProgress, source.index, destination.index))
-  //               break
-  //           case "completed":
-  //               updateCompleted(reorderSection(completed, source.index, destination.index))
-  //               break
-  //       }
-  //   } else {
-  //       const result = move(getList(source.droppableId), getList(destination.droppableId), source, destination)
-        
-        
-        
-  //       const newTodos = result.todos ? result.todos : undefined;
-  //       const newInProgress = result["in-progress"] ? result["in-progress"] : undefined;
-  //       const newCompleted = result.completed ? result.completed : undefined;
-  //       if (newTodos === undefined) {
-  //           updateInProgress(newInProgress);
-  //           updateCompleted(newCompleted);
-  //       } else if (newInProgress === undefined) {
-  //           updateTodos(newTodos);
-  //           updateCompleted(newCompleted);
-  //       } else if (newCompleted === undefined) {
-  //           updateTodos(newTodos);
-  //           updateInProgress(newInProgress)
-  //       }
-  //   } 
-  // }
+
+  const handleDragEnd = useCallback((result) => {
+    if (result.reason === "DROP") {
+      if (!result.destination) {
+        return;
+      }
+      dispatch({
+        type: "MOVE",
+        from: result.source.droppableId,
+        to: result.destination.droppableId,
+        fromIndex: result.source.index,
+        toIndex: result.destination.index,
+      });
+    }
+  }, []);
 
   return (
     <div>
       {/* <div>{project.project_name}</div> */}
-      {console.log(lists)}
       <div>Project {projectId}</div>
       <div className={styles.container}>
-            {lists.map((list: any) => (
-             <div>
+            {state.items.map((list: any) => (
+             <DragDropContext onDragEnd={handleDragEnd}>
                 <StatusList list_name={list.list_name} list_id={list.list_id} cards={cards} key={list.list_id}/>
-             </div>
+             </DragDropContext>
             ))}
       </div>
     </div>
@@ -150,10 +129,6 @@ export const getServerSideProps = async (context: any) => {
     }
   }
 };
-// make new list component
-// in here, GET lists that correspond to the project id
-// THEN (in another component) get cards that correspond to the list id
-// finally, add logic for moving cards
 
 export default Project;
 

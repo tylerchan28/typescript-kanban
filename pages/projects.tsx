@@ -80,6 +80,7 @@ export const getServerSideProps = async (context: any) => {
       console.log('connected to PostgreSQL');
     }
   });
+  
   const userData = await getUserData(context.req.user.email, client);
 
   return {
