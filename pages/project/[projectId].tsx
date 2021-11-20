@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import styles from "../../styles/project.module.css";
 import { Project } from "../../models/project-model";
-import { DragDropContext, Droppable, resetServerContext } from "react-beautiful-dnd";
+import { DragDropContext, resetServerContext } from "react-beautiful-dnd";
 import { Card } from "../../models/card-model";
 import { List } from "../../models/list-model";
 import StatusList from "../../components/StatusList";
@@ -14,26 +14,30 @@ interface Props {
   cards: Card[]
 }
 
+interface StatusList {
+  cardsArr: Card[]
+  droppableId: number
+  listId: number
+  listName: string
+}
 
 function Project({ cards, lists }: Props) {
   const router = useRouter();
   const { projectId } = router.query;
   const [statusLists, setStatusLists] = useState({})
-  const [state, changeState] = useState(false)
-
 
   useEffect(() => {
-    const configureLists = (lists: any) => {
+    const configureLists = (lists: List[]) => {
       let listMap: any = {}
-      const withCards = lists.map((list: any, index: any) => (
+      lists.forEach((list: List, index: number) => (
         listMap[index] = {cardsArr: [], droppableId: index, listId: list.list_id, listName: list.list_name}
-    ))
+      ))
       return listMap;
     }
   
     const addCards = (map: any) => {
       for (let i in map) {
-        let arr: any = [];
+        let arr: Card[] = [];
         cards.forEach((card) => {
           parseInt(card.list_id) === map[i].listId && arr.push(card)
       })
@@ -42,7 +46,6 @@ function Project({ cards, lists }: Props) {
       return map; 
     }
     let mapWithCardArr = configureLists(lists)
-    console.log("useEffect")
     setStatusLists(addCards(mapWithCardArr))
   }, [])
 
@@ -52,15 +55,37 @@ function Project({ cards, lists }: Props) {
     const { source, destination } = result;
     if (source.droppableId === destination.droppableId) {
       const list = statusLists[source.droppableId]
-      console.log(list)
       const copiedItems = [...list.cardsArr];
       const [removed] = copiedItems.splice(source.index, 1);
       copiedItems.splice(destination.index, 0, removed);
       let copiedLists = statusLists;
       copiedLists[source.droppableId] = {...list, cardsArr: copiedItems}
-      setStatusLists(copiedLists)
-      // Fix later
-      changeState(!state);
+      setStatusLists({
+        ...statusLists,
+        [source.droppableId]: {
+          ...list,
+          cardsArr: copiedItems
+        }
+      })
+    } else {
+      const sourceList = statusLists[source.droppableId];
+      const destList = statusLists[destination.droppableId];
+      const sourceCards = [...sourceList.cardsArr];
+      const destCards = [...destList.cardsArr];
+      const [removed] = sourceCards.splice(source.index, 1);
+      destCards.splice(destination.index, 0, removed);
+      setStatusLists({
+        ...statusLists,
+        [source.droppableId]: {
+          ...sourceList,
+          cardsArr: sourceCards
+        },
+        [destination.droppableId]: {
+          ...destList,
+          cardsArr: destCards
+        }
+      })
+      console.log(statusLists)
     }
   }
 
