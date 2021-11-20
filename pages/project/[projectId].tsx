@@ -1,93 +1,85 @@
 import { useRouter } from "next/router";
-import { useReducer, useCallback } from "react";
 import styles from "../../styles/project.module.css";
 import { Project } from "../../models/project-model";
-import { DragDropContext, resetServerContext } from "react-beautiful-dnd";
+import { DragDropContext, Droppable, resetServerContext } from "react-beautiful-dnd";
 import { Card } from "../../models/card-model";
 import { List } from "../../models/list-model";
 import StatusList from "../../components/StatusList";
 const { Client } = require("pg");
-import produce from "immer";
+import { useState, useEffect} from "react";
+
 
 interface Props {
   lists: List[]
   cards: Card[]
 }
 
-const dragReducer = produce((draft, action) => {
-  switch (action.type) {
-    case "MOVE": {
-      draft[action.from] = draft[action.from] || [];
-      draft[action.to] = draft[action.to] || [];
-      const [removed] = draft[action.from].splice(action.fromIndex, 1);
-      draft[action.to].splice(action.toIndex, 0, removed);
-    }
-  }
-});
 
-const Project = ({ cards, lists }: Props) => {
+function Project({ cards, lists }: Props) {
   const router = useRouter();
   const { projectId } = router.query;
-  const [state, dispatch] = useReducer(dragReducer, {
-    items: lists,
-  });
-  // // const [todo, updateTodo] = useState(project.todo)
-  // // const [inProgress, updateInProgress] = useState(project.inProgress)
-  // // const [completed, updateCompleted] = useState(project.completed)
+  const [statusLists, setStatusLists] = useState({})
+  const [state, changeState] = useState(false)
 
-  
-  // const reorderSection = (list: Card[] | undefined, startIndex: number, endIndex: number) => {
-  //   const result = Array.from(list!);
-  //   const [removed] = result.splice(startIndex, 1);
-  //   result.splice(endIndex, 0, removed);
-  //   return result;
-  // }
 
-  // const move = (source: Card[] | undefined, destination: Card[] | undefined, droppableSource: DraggableLocation, droppableDestination: DraggableLocation) => {
-  //   const sourceClone = Array.from(source!);
-  //   const destinationClone = Array.from(destination!);
-  //   const [removed] = sourceClone.splice(droppableSource.index, 1);
-
-  //   destinationClone.splice(droppableDestination.index, 0, removed);
-
-  //   const result: any = {};
-  //   result[droppableSource.droppableId] = sourceClone;
-  //   result[droppableDestination.droppableId] = destinationClone;
-  //   return result;
-  // }
-
-  const handleDragEnd = useCallback((result) => {
-    if (result.reason === "DROP") {
-      if (!result.destination) {
-        return;
-      }
-      dispatch({
-        type: "MOVE",
-        from: result.source.droppableId,
-        to: result.destination.droppableId,
-        fromIndex: result.source.index,
-        toIndex: result.destination.index,
-      });
+  useEffect(() => {
+    const configureLists = (lists: any) => {
+      let listMap: any = {}
+      const withCards = lists.map((list: any, index: any) => (
+        listMap[index] = {cardsArr: [], droppableId: index, listId: list.list_id, listName: list.list_name}
+    ))
+      return listMap;
     }
-  }, []);
+  
+    const addCards = (map: any) => {
+      for (let i in map) {
+        let arr: any = [];
+        cards.forEach((card) => {
+          parseInt(card.list_id) === map[i].listId && arr.push(card)
+      })
+      map[i].cardsArr = arr;
+      }
+      return map; 
+    }
+    let mapWithCardArr = configureLists(lists)
+    console.log("useEffect")
+    setStatusLists(addCards(mapWithCardArr))
+  }, [])
+
+
+  const onDragEnd = (result: any, statusLists: any, setStatusLists: any) => {
+    if (!result.destination) return;
+    const { source, destination } = result;
+    if (source.droppableId === destination.droppableId) {
+      const list = statusLists[source.droppableId]
+      console.log(list)
+      const copiedItems = [...list.cardsArr];
+      const [removed] = copiedItems.splice(source.index, 1);
+      copiedItems.splice(destination.index, 0, removed);
+      let copiedLists = statusLists;
+      copiedLists[source.droppableId] = {...list, cardsArr: copiedItems}
+      setStatusLists(copiedLists)
+      // Fix later
+      changeState(!state);
+    }
+  }
 
   return (
     <div>
-      {/* <div>{project.project_name}</div> */}
       <div>Project {projectId}</div>
       <div className={styles.container}>
-            {state.items.map((list: any) => (
-             <DragDropContext onDragEnd={handleDragEnd}>
-                <StatusList list_name={list.list_name} list_id={list.list_id} cards={cards} key={list.list_id}/>
-             </DragDropContext>
-            ))}
+        <DragDropContext onDragEnd={(result) => onDragEnd(result, statusLists, setStatusLists)}>
+              {Object.values(statusLists).map((statusList: any, index: number) => (
+                    <StatusList list_name={statusList.listName} list_id={statusList.listId} key={statusList.listId} cards={statusList.cardsArr} index={index} />
+              ))}
+        </DragDropContext>
       </div>
     </div>
   );
 }
 
 export const getServerSideProps = async (context: any) => {
-  resetServerContext()
+  resetServerContext();
   let client = new Client({
     user: process.env.DB_USER,
     database: process.env.DB_DATABASE,
@@ -131,35 +123,3 @@ export const getServerSideProps = async (context: any) => {
 };
 
 export default Project;
-
-// DragDropContext onDragEnd={handleDragEnd}>
-//               {/* Each droppable should become its own list component with a name */}
-//               {/* Map out ALL lists here (add a max amount?)*/}
-//               <Droppable droppableId="todos">
-//                   {(provided) => 
-//                     <div className={styles.todos} {...provided.droppableProps} ref={provided.innerRef}>
-//                         <div>To Do</div>
-//                         {provided.placeholder}
-//                     </div>
-//                   }
-//               </Droppable>
-//               <Droppable droppableId="in-progress">
-//                   {(provided) => 
-//                     <div className={styles.todos} {...provided.droppableProps} ref={provided.innerRef}>
-//                         <div>In Progress</div>
-//                         {provided.placeholder}
-//                     </div>
-//                   }
-//               </Droppable>
-//               <Droppable droppableId="completed">
-//                   {(provided) => 
-//                     <div className={styles.todos} {...provided.droppableProps} ref={provided.innerRef}>
-//                         <div>Completed</div>
-//                         {completed.map((todo, index) => (
-//                             <TodoCard todo={todo} key={todo.id} index={index}/>
-//                         ))}
-//                         {provided.placeholder}
-//                     </div>
-//                   }
-//               </Droppable>
-//           </DragDropContext>
