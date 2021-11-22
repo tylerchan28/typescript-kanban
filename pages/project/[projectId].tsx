@@ -7,6 +7,7 @@ import { List } from "../../models/list-model";
 import StatusList from "../../components/StatusList";
 const { Client } = require("pg");
 import { useState, useEffect} from "react";
+import axios from "axios";
 
 
 interface Props {
@@ -53,6 +54,9 @@ function Project({ cards, lists }: Props) {
   const onDragEnd = (result: any, statusLists: any, setStatusLists: any) => {
     if (!result.destination) return;
     const { source, destination } = result;
+    console.log(source)
+    console.log(destination)
+    // Front end moving
     if (source.droppableId === destination.droppableId) {
       const list = statusLists[source.droppableId]
       const copiedItems = [...list.cardsArr];
@@ -67,13 +71,26 @@ function Project({ cards, lists }: Props) {
           cardsArr: copiedItems
         }
       })
+      // DB change (call function from server)
+        // let cardsToChange = statusLists[source.droppableId].cardsArr;
+        // let orderedCards = cardsToChange.map((card: Card, index: number) => ({
+        //   ...card,
+        //   order: index
+        // }))
+        // orderedCards.forEach((card: Card, index: number) => {
+        //   axios.put("/update-cards-same-column", { card_id: card.card_id, card_order: index })
+        // })
+
     } else {
+      // Front end moving
       const sourceList = statusLists[source.droppableId];
       const destList = statusLists[destination.droppableId];
       const sourceCards = [...sourceList.cardsArr];
       const destCards = [...destList.cardsArr];
       const [removed] = sourceCards.splice(source.index, 1);
+      console.log(removed)
       destCards.splice(destination.index, 0, removed);
+      console.log(destCards)
       setStatusLists({
         ...statusLists,
         [source.droppableId]: {
@@ -85,8 +102,18 @@ function Project({ cards, lists }: Props) {
           cardsArr: destCards
         }
       })
-      console.log(statusLists)
+      let temp = destCards;
+      let cardListId = destCards[0].list_id; // 1
+      let cardListId2 = destCards[1].list_id; // 3
+      
+      
+      
+      // DB change (call function from server)  
+        // switch ids
+        // then follow logic from above
+
     }
+    
   }
 
   return (
@@ -95,7 +122,7 @@ function Project({ cards, lists }: Props) {
       <div className={styles.container}>
         <DragDropContext onDragEnd={(result) => onDragEnd(result, statusLists, setStatusLists)}>
               {Object.values(statusLists).map((statusList: any, index: number) => (
-                    <StatusList list_name={statusList.listName} list_id={statusList.listId} key={statusList.listId} cards={statusList.cardsArr} index={index} />
+                    <StatusList list_name={statusList.listName} key={statusList.listId} cards={statusList.cardsArr} index={index} />
               ))}
         </DragDropContext>
       </div>

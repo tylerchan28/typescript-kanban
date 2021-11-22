@@ -4,13 +4,12 @@ import styles from "../styles/TodoCard.module.css";
 import TodoCard from "./TodoCard";
 
 type Props = {
-    list_id: number
     list_name: string
     cards: Card[]
     index: number
 }
 
-function StatusList({ list_name, list_id, cards, index }: Props) {
+function StatusList({ list_name, cards, index }: Props) {
     return (
             <Droppable droppableId={index.toString()} >
                       {(provided) => 
