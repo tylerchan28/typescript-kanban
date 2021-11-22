@@ -136,6 +136,17 @@ app.prepare().then(() => {
     console.log("updating")
   })
 
+  server.put("/update-list-id", (req, res) => {
+    client.query(
+      "UPDATE cards SET list_id = ($1) WHERE card_id = ($2)",
+      [req.body.new_list_id, req.body.card_id],
+      (err, results) => {
+        if (err) throw err;
+        console.log("changed card's listid")
+      }
+    )
+  })
+
   server.get("/error", (req, res) => res.json("error logging in"));
 
   server.get("*", (req, res) => {
