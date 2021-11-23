@@ -124,17 +124,6 @@ app.prepare().then(() => {
     );
   });
 
-  server.put("/update-cards-same-column", (req, res) => {
-    client.query(
-      "UPDATE cards SET card_order = ($1) WHERE card_id = ($2)",
-      [req.body.card_order, req.body.card_id], 
-      (err, results) => {
-        if (err) throw err;
-        console.log("updated cards")
-      }
-    )
-    console.log("updating")
-  })
 
   server.put("/update-list-id", (req, res) => {
     client.query(
@@ -142,7 +131,7 @@ app.prepare().then(() => {
       [req.body.new_list_id, req.body.card_id],
       (err, results) => {
         if (err) throw err;
-        console.log("changed card's listid")
+        res.json("updating list id done")
       }
     )
   })

@@ -55,7 +55,27 @@ function Project({ cards, lists }: Props) {
     setStatusLists(addCards(mapWithCardArr));
   }, []);
 
-  const onDragEnd = (result: any, statusLists: any, setStatusLists: any) => {
+  const onSave = (list: any) => {
+    const saveArr = [];
+    for (let i in list) {
+      saveArr.push(list[i]);
+    }    
+    saveArr.forEach((list: any) => {
+      list.cardsArr.forEach(async (card: Card) => {
+        await axios.put("/update-list-id", {
+          new_list_id: card.list_id,
+          card_id: card.card_id
+        })
+      })
+    })
+  }
+
+
+  const onDragEnd = (
+    result: any,
+    statusLists: any,
+    setStatusLists: any
+  ) => {
     if (!result.destination) return;
     const { source, destination } = result;
     // Front end moving
@@ -73,62 +93,36 @@ function Project({ cards, lists }: Props) {
           cardsArr: copiedItems,
         },
       });
-      // DB change (call function from server)
-      let cardsToChange = statusLists[source.droppableId].cardsArr;
-      console.log(cardsToChange)
-      cardsToChange.forEach((card: Card, index: number) => {
-        axios.put("/update-cards-same-column", {
-          card_id: card.card_id,
-          card_order: index,
-        });
-      });
-    } else if (source.droppableId !== destination.droppableId) {
+      console.log(statusLists)
+    } else {
       // Front end moving
       const sourceList = statusLists[source.droppableId];
       const destList = statusLists[destination.droppableId];
       const sourceCards = [...sourceList.cardsArr];
       const destCards = [...destList.cardsArr];
       const [removed] = sourceCards.splice(source.index, 1);
-      axios.put("/update-list-id", {
-        new_list_id: destList.listId,
-        card_id: removed.card_id,
-      });
       removed.list_id = destList.listId;
-
       destCards.splice(destination.index, 0, removed);
 
       setStatusLists({
         ...statusLists,
         [source.droppableId]: {
           ...sourceList,
-          cardsArr: sourceCards,
+          cardsArr: sourceCards
         },
         [destination.droppableId]: {
           ...destList,
-          cardsArr: destCards,
+          cardsArr: destCards
         },
       });
-      
-      console.log(statusLists);
-
-      sourceCards.forEach((card: Card, index: number) => {
-         axios.put("/update-cards-same-column", {
-          card_id: card.card_id,
-          card_order: index,
-        });
-      });
-      destCards.forEach((card: Card, index: number) => {
-        axios.put("/update-cards-same-column", {
-         card_id: card.card_id,
-         card_order: index,
-       });
-     });
+      ;
     }
   };
 
   return (
     <div>
       <div>Project {projectId}</div>
+      <button onClick={() => onSave(statusLists)}>Save</button>
       <div className={styles.container}>
         <DragDropContext
           onDragEnd={(result) => onDragEnd(result, statusLists, setStatusLists)}
