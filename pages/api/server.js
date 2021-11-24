@@ -93,14 +93,26 @@ app.prepare().then(() => {
   server.post("/add-project", (req, res) => {
     const { user_id, project_name } = req.body;
     client.query(
-      "INSERT INTO projects (user_id, project_name) VALUES ($1, $2)",
+      "INSERT INTO projects (user_id, project_name) VALUES ($1, $2) RETURNING project_id",
       [user_id, project_name],
       (err, results) => {
         if (err) throw err;
-        console.log("added project");
+        res.json(results.rows[0].project_id);
       }
     );
   });
+
+  server.post("/add-card", (req, res) => {
+    const { list_id, card_description } = req.body;
+    client.query(
+      "INSERT INTO cards (list_id, card_description) VALUES ($1, $2) RETURNING card_id",
+      [list_id, card_description],
+      (err, results) => {
+        if (err) throw err;
+        res.json(results.rows[0].card_id)
+      }
+      )
+  })
 
   server.get("/success", (req, res) => {
     client.query(

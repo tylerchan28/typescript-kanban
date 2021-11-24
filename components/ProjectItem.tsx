@@ -3,7 +3,7 @@ import Link from "next/link";
 // Project is an object being passed as props, so must define project as well
 interface Props {
     project: {
-        project_id: number;
+        project_id?: number;
         user_id: number;
         project_name: string;
     }

@@ -6,9 +6,9 @@ import { Card } from "../../models/card-model";
 import { List } from "../../models/list-model";
 import StatusList from "../../components/StatusList";
 const { Client } = require("pg");
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
-
+import { onSave, configureLists, addCards } from "../../helpers";
 interface Props {
   lists: List[];
   cards: Card[];
@@ -19,63 +19,44 @@ interface StatusList {
   droppableId: number;
   listId: number;
   listName: string;
+  entries: any
+}
+
+interface IStatusList {
+  [key: string]: StatusList
 }
 
 function Project({ cards, lists }: Props) {
   const router = useRouter();
   const { projectId } = router.query;
-  const [statusLists, setStatusLists] = useState({});
+  const [statusLists, setStatusLists] = useState<IStatusList>({});
+  const [addCardForm, showAddCardForm] = useState(false);
+  const cardDescriptionRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    const configureLists = (lists: List[]) => {
-      let listMap: any = {};
-      lists.forEach(
-        (list: List, index: number) =>
-          (listMap[index] = {
-            cardsArr: [],
-            droppableId: index,
-            listId: list.list_id,
-            listName: list.list_name,
-          })
-      );
-      return listMap;
-    };
-
-    const addCards = (map: any) => {
-      for (let i in map) {
-        let arr: Card[] = [];
-        cards.forEach((card) => {
-          parseInt(card.list_id) === map[i].listId && arr.push(card);
-        });
-        map[i].cardsArr = arr;
-      }
-      return map;
-    };
     let mapWithCardArr = configureLists(lists);
-    setStatusLists(addCards(mapWithCardArr));
+    setStatusLists(addCards(mapWithCardArr, cards));
   }, []);
 
-  const onSave = (list: any) => {
-    const saveArr = [];
-    for (let i in list) {
-      saveArr.push(list[i]);
-    }    
-    saveArr.forEach((list: any) => {
-      list.cardsArr.forEach(async (card: Card) => {
-        await axios.put("/update-list-id", {
-          new_list_id: card.list_id,
-          card_id: card.card_id
-        })
-      })
-    })
+  const onAddCard = (e: React.FormEvent) => {
+    e.preventDefault();
+    const submittedCard: Card = ({
+      list_id: statusLists[0].listId,
+      card_description: cardDescriptionRef.current!.value
+    });
+    
+    axios.post("http://localhost:3000/add-card", submittedCard, {headers: {
+      'Content-Type': 'application/json'
+    }}).then((res) => {
+      submittedCard.card_id = res.data;
+      statusLists[0].cardsArr.push(submittedCard)
+      cardDescriptionRef.current!.value = "";
+    showAddCardForm(false);
+    });
   }
 
 
-  const onDragEnd = (
-    result: any,
-    statusLists: any,
-    setStatusLists: any
-  ) => {
+  const onDragEnd = (result: any, statusLists: any, setStatusLists: any) => {
     if (!result.destination) return;
     const { source, destination } = result;
     // Front end moving
@@ -84,8 +65,6 @@ function Project({ cards, lists }: Props) {
       const copiedItems = [...list.cardsArr];
       const [removed] = copiedItems.splice(source.index, 1);
       copiedItems.splice(destination.index, 0, removed);
-      let copiedLists = statusLists;
-      copiedLists[source.droppableId] = { ...list, cardsArr: copiedItems };
       setStatusLists({
         ...statusLists,
         [source.droppableId]: {
@@ -93,9 +72,7 @@ function Project({ cards, lists }: Props) {
           cardsArr: copiedItems,
         },
       });
-      console.log(statusLists)
     } else {
-      // Front end moving
       const sourceList = statusLists[source.droppableId];
       const destList = statusLists[destination.droppableId];
       const sourceCards = [...sourceList.cardsArr];
@@ -108,14 +85,13 @@ function Project({ cards, lists }: Props) {
         ...statusLists,
         [source.droppableId]: {
           ...sourceList,
-          cardsArr: sourceCards
+          cardsArr: sourceCards,
         },
         [destination.droppableId]: {
           ...destList,
-          cardsArr: destCards
+          cardsArr: destCards,
         },
       });
-      ;
     }
   };
 
@@ -123,6 +99,16 @@ function Project({ cards, lists }: Props) {
     <div>
       <div>Project {projectId}</div>
       <button onClick={() => onSave(statusLists)}>Save</button>
+      <button onClick={() => showAddCardForm(!addCardForm)}>Add Card</button>
+      { addCardForm && 
+        <form onSubmit={onAddCard}>
+          <input
+            type="text"
+            ref={cardDescriptionRef}
+          />
+          <button type="submit">Add</button>
+        </form>
+      }
       <div className={styles.container}>
         <DragDropContext
           onDragEnd={(result) => onDragEnd(result, statusLists, setStatusLists)}

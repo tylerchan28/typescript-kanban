@@ -1,4 +1,3 @@
-import { NextApiHandler } from 'next';
 import Head from 'next/head'
 import ProjectList from '../components/ProjectList'
 import { Project } from '../models/project-model';
@@ -26,15 +25,20 @@ function projects({ projects, id }: Props) {
 
   const onFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const submittedProject = ({
+    const submittedProject: Project = ({
       user_id: id,
-      project_name: projectNameRef.current!.value
+      project_name: projectNameRef.current!.value,
     });
-    setCurrentProjects([...currentProjects, submittedProject]);
-    projectNameRef.current!.value = "";
+    
     axios.post("http://localhost:3000/add-project", submittedProject, {headers: {
       'Content-Type': 'application/json'
-    }});
+    }}).then((res) => {
+      submittedProject.project_id = res.data;
+      setCurrentProjects([...currentProjects, submittedProject]);
+    });
+    projectNameRef.current!.value = "";
+    console.log(currentProjects);
+    showProjectForm(!projectForm);
   }
   return (
     <div>
