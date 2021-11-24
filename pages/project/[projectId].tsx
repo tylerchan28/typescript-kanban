@@ -42,7 +42,8 @@ function Project({ cards, lists }: Props) {
     e.preventDefault();
     const submittedCard: Card = ({
       list_id: statusLists[0].listId,
-      card_description: cardDescriptionRef.current!.value
+      card_description: cardDescriptionRef.current!.value,
+      card_id: Math.random()
     });
     
     axios.post("http://localhost:3000/add-card", submittedCard, {headers: {
@@ -53,6 +54,28 @@ function Project({ cards, lists }: Props) {
       cardDescriptionRef.current!.value = "";
     showAddCardForm(false);
     });
+  }
+
+  const onDeleteCard = (card_id: number, list_id: number) => {
+    console.log(card_id)
+    console.log(list_id)
+    let matchedList: any;
+    // access the card's list and splice it out
+    for (let i in statusLists) {
+      if (statusLists[i].listId === list_id) {
+        matchedList = statusLists[i];
+        break;
+      }
+    }
+    let matchedCardsArr = matchedList.cardsArr;
+    let deletedCardArr = matchedCardsArr.filter((card: Card) => card.card_id !== card_id)
+    setStatusLists({
+      ...statusLists,
+      [list_id]: {
+        ...matchedList,
+        cardsArr: deletedCardArr
+      }
+    })
   }
 
 
@@ -98,7 +121,7 @@ function Project({ cards, lists }: Props) {
   return (
     <div>
       <div>Project {projectId}</div>
-      <button onClick={() => onSave(statusLists)}>Save</button>
+      <button onClick={() => onSave(statusLists)}>Save Card Order</button>
       <button onClick={() => showAddCardForm(!addCardForm)}>Add Card</button>
       { addCardForm && 
         <form onSubmit={onAddCard}>
@@ -118,7 +141,9 @@ function Project({ cards, lists }: Props) {
               list_name={statusList.listName}
               key={statusList.listId}
               cards={statusList.cardsArr}
+              list_id={statusList.listId}
               index={index}
+              deleteCard={onDeleteCard}
             />
           ))}
         </DragDropContext>

@@ -17,10 +17,19 @@ export const onSave = (list: any) => {
   }
 
   export const configureLists = (lists: List[]) => {
-    let listMap: any = new Map;
+    let listMap: any = {};
+    // lists.forEach(
+    //   (list: List, index: number) =>
+    //     (listMap[index] = {
+    //       cardsArr: [],
+    //       droppableId: index,
+    //       listId: list.list_id,
+    //       listName: list.list_name,
+    //     })
+    // );
     lists.forEach(
       (list: List, index: number) =>
-        (listMap[index] = {
+        (listMap[list.list_id] = {
           cardsArr: [],
           droppableId: index,
           listId: list.list_id,
@@ -34,7 +43,7 @@ export const onSave = (list: any) => {
     for (let i in map) {
       let arr: Card[] = [];
       cards.forEach((card) => {
-        parseInt(card.list_id) === map[i].listId && arr.push(card);
+        card.list_id === map[i].listId && arr.push(card);
       });
       map[i].cardsArr = arr;
     }
