@@ -114,6 +114,17 @@ app.prepare().then(() => {
       )
   })
 
+  server.delete("/delete-card", (req, res) => {
+    client.query(
+      "DELETE FROM cards WHERE card_id = ($1)",
+      [req.body.card_id],
+      (err, results) => {
+        if (err) throw err;
+        res.json("deleted card")
+      }
+    )
+  })
+
   server.get("/success", (req, res) => {
     client.query(
       "SELECT user_id FROM users WHERE email = ($1)",

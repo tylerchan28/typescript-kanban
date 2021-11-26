@@ -76,6 +76,7 @@ function Project({ cards, lists }: Props) {
         cardsArr: deletedCardArr
       }
     })
+    axios.delete("/delete-card", { data: { card_id: card_id }})
   }
 
 
