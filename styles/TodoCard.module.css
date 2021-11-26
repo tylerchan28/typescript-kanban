@@ -3,4 +3,15 @@
     padding: 50px;
     margin-top: 10px;
     box-shadow: 1px 1px 5px black;
+    min-width: 5vw;
+    min-height: 10vh;
+}
+
+.card:hover .buttonContainer {
+    display: block;
+}
+
+.buttonContainer {
+    display: none;
+    text-align: center;
 }

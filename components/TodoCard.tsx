@@ -1,5 +1,6 @@
 import styles from "../styles/TodoCard.module.css";
-import { Draggable } from "react-beautiful-dnd";import React from "react";
+import { Draggable } from "react-beautiful-dnd";
+import { useState, useRef } from "react";
 import axios from "axios";
 
 interface Props {
@@ -7,13 +8,24 @@ interface Props {
     card_id: number
     card_description: string
     onDelete: (card_id: number) => void;
+    onEdit: (card_id: number, description: string) => void;
 }
 
 function TodoCard(props: Props) {
 
+    const [editForm, showEditForm] = useState(false);
+    const editRef = useRef<HTMLInputElement>(null);
+
     const onDeleteCard = (e: React.FormEvent) => {
         e.preventDefault();
         props.onDelete(props.card_id);
+    }
+
+    const onEditCard = (e: React.FormEvent) => {
+        e.preventDefault();
+        const newDescription = editRef.current!.value;
+        props.onEdit(props.card_id, newDescription)
+        showEditForm(false)
     }
 
     return (
@@ -21,9 +33,26 @@ function TodoCard(props: Props) {
             {(provided) => (
                 <div {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef}>
                     <div className={styles.card}>
-                        {props.card_description}
-                        <button onClick={onDeleteCard}> X</button>
+                        <div className={styles.buttonContainer}>
+                            <button onClick={onDeleteCard} className={styles.remove}>X</button>
+                            <button onClick={() => showEditForm(!editForm)}>Edit</button>
+                        </div>
+                        <div>
+                        { editForm ?
+                                <form onSubmit={onEditCard}>
+                                    <input
+                                        type="text"
+                                        defaultValue={props.card_description}
+                                        ref={editRef}
+                                    />
+                                    <button type="submit">Save</button>
+                                </form>
+                                :
+                                props.card_description
+                        }
+                        </div>
                     </div>
+                    
                 </div>
             )
             }

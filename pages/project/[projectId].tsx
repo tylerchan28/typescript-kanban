@@ -41,7 +41,7 @@ function Project({ cards, lists }: Props) {
   const onAddCard = (e: React.FormEvent) => {
     e.preventDefault();
     const submittedCard: Card = ({
-      list_id: statusLists[0].listId,
+      list_id: statusLists[Object.keys(statusLists)[0]].listId,
       card_description: cardDescriptionRef.current!.value,
       card_id: Math.random()
     });
@@ -50,15 +50,12 @@ function Project({ cards, lists }: Props) {
       'Content-Type': 'application/json'
     }}).then((res) => {
       submittedCard.card_id = res.data;
-      statusLists[0].cardsArr.push(submittedCard)
+      statusLists[Object.keys(statusLists)[0]].cardsArr.push(submittedCard)
       cardDescriptionRef.current!.value = "";
     showAddCardForm(false);
     });
   }
-
   const onDeleteCard = (card_id: number, list_id: number) => {
-    console.log(card_id)
-    console.log(list_id)
     let matchedList: any;
     // access the card's list and splice it out
     for (let i in statusLists) {
@@ -77,6 +74,33 @@ function Project({ cards, lists }: Props) {
       }
     })
     axios.delete("/delete-card", { data: { card_id: card_id }})
+  }
+
+  const onEditCard = (card_id: number, list_id: number, description: string) => {
+    let matchedList: any;
+    for (let i in statusLists) {
+      if (statusLists[i].listId === list_id) {
+        matchedList = statusLists[i];
+        break;
+      }
+    }
+    let matchedCardsArr = matchedList.cardsArr;
+    console.log(matchedCardsArr)
+    for (let i = 0; i < matchedCardsArr.length; i++) {
+      if (matchedCardsArr[i].card_id === card_id) {
+        matchedCardsArr[i].card_description = description;
+      }
+    }
+    setStatusLists({
+      ...statusLists,
+      [list_id]: {
+        ...matchedList,
+        cardsArr: matchedCardsArr
+      }
+    })
+    axios.put("/edit-card", { card_id, card_description: description})
+      .then(() => onSave(statusLists))
+
   }
 
 
@@ -145,6 +169,7 @@ function Project({ cards, lists }: Props) {
               list_id={statusList.listId}
               index={index}
               deleteCard={onDeleteCard}
+              editCard={onEditCard}
             />
           ))}
         </DragDropContext>

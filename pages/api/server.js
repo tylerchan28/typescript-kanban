@@ -114,6 +114,17 @@ app.prepare().then(() => {
       )
   })
 
+  server.put("/edit-card", (req, res) => {
+    client.query(
+      "UPDATE cards SET card_description = ($1) WHERE card_id = ($2)",
+      [req.body.card_description, req.body.card_id],
+      (err, results) => {
+        if (err) throw err;
+        res.json("edited card")
+      }
+    )
+  })
+
   server.delete("/delete-card", (req, res) => {
     client.query(
       "DELETE FROM cards WHERE card_id = ($1)",
