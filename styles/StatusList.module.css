@@ -1,0 +1,10 @@
+.list_title {
+    display: flex;
+    margin-left: 20px;
+    justify-content: space-between;
+
+}
+
+.list {
+    width: 15vw;
+}

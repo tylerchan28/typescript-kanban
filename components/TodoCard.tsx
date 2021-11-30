@@ -17,7 +17,11 @@ function TodoCard(props: Props) {
 
     const onDeleteCard = (e: React.FormEvent) => {
         e.preventDefault();
-        props.onDelete(props.card_id);
+        if (confirm("Are you sure you want to delete this card?") === true) {
+            props.onDelete(props.card_id);
+        } else {
+            return;
+        }        
     }
 
     const onEditCard = (e: React.FormEvent) => {

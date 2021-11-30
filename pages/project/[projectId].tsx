@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import styles from "../../styles/project.module.css";
+import styles from "../../styles/Project.module.css";
 import { Project } from "../../models/project-model";
 import { DragDropContext, resetServerContext } from "react-beautiful-dnd";
 import { Card } from "../../models/card-model";
@@ -30,9 +30,7 @@ function Project({ cards, lists }: Props) {
   const router = useRouter();
   const { projectId } = router.query;
   const [statusLists, setStatusLists] = useState<IStatusList>({});
-  const [addCardForm, showAddCardForm] = useState(false);
   const [addListForm, showAddListForm] = useState(false);
-  const cardDescriptionRef = useRef<HTMLInputElement>(null);
   const listTitleRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -40,14 +38,12 @@ function Project({ cards, lists }: Props) {
     setStatusLists(addCards(mapWithCardArr, cards));
   }, []);
 
-  const onAddCard = (e: React.FormEvent) => {
-    e.preventDefault();
+  const onAddCard = (list_id: number, card_description: string) => {
     const submittedCard: Card = {
-      list_id: statusLists[Object.keys(statusLists)[0]].listId,
-      card_description: cardDescriptionRef.current!.value,
+      list_id: list_id,
+      card_description: card_description,
       card_id: Math.random(),
     };
-
     axios
       .post("http://localhost:3000/add-card", submittedCard, {
         headers: {
@@ -56,14 +52,17 @@ function Project({ cards, lists }: Props) {
       })
       .then((res) => {
         submittedCard.card_id = res.data;
-        statusLists[Object.keys(statusLists)[0]].cardsArr.push(submittedCard);
-        cardDescriptionRef.current!.value = "";
-        showAddCardForm(false);
+        setStatusLists({
+          ...statusLists,
+          [list_id]: {
+            ...statusLists[list_id],
+            cardsArr: [...statusLists[list_id].cardsArr, submittedCard]
+          }
+        })
       });
   };
   const onDeleteCard = (card_id: number, list_id: number) => {
     let matchedList: any;
-    // access the card's list and splice it out
     for (let i in statusLists) {
       if (statusLists[i].listId === list_id) {
         matchedList = statusLists[i];
@@ -113,41 +112,39 @@ function Project({ cards, lists }: Props) {
     axios
       .put("/edit-card", { card_id, card_description: description })
       .then(() => onSave(statusLists));
-  }
+  };
   const onAddList = (e: React.FormEvent) => {
     e.preventDefault();
     const submittedList: any = {
       listId: Math.random(),
       listName: listTitleRef.current!.value,
-      projectId: +projectId!
-    }
+      projectId: +projectId!,
+    };
     axios.post("/add-list", submittedList).then((res) => {
       submittedList.cardsArr = [];
       submittedList.droppableId = res.data;
       submittedList.listId = res.data;
       setStatusLists({
         ...statusLists,
-        [res.data]: submittedList
-      })
+        [res.data]: submittedList,
+      });
       listTitleRef.current!.value = "";
       showAddListForm(false);
-    })
-  }
+    });
+  };
 
   const onDeleteList = (list_id: number) => {
-    console.log(list_id)
     let statusListsCopy: any = {};
     for (let i in statusLists) {
       if (statusLists[i].listId !== list_id) {
         statusListsCopy[statusLists[i].listId] = statusLists[i];
       }
     }
-    setStatusLists(statusListsCopy)
-    axios.delete("/delete-list", { data: { list_id: list_id }})
+    setStatusLists(statusListsCopy);
+    axios
+      .delete("/delete-list", { data: { list_id: list_id } })
       .then((res) => console.log(res));
-  }
-
-
+  };
 
   const onDragEnd = (result: any, statusLists: any, setStatusLists: any) => {
     if (!result.destination) return;
@@ -194,18 +191,9 @@ function Project({ cards, lists }: Props) {
       {lists.length > 0 && (
         <div>
           <button onClick={() => onSave(statusLists)}>Save Card Order</button>
-          <button onClick={() => showAddCardForm(!addCardForm)}>
-            Add Card
-          </button>
         </div>
       )}
       <button onClick={() => showAddListForm(!addListForm)}>Add List</button>
-      {addCardForm && (
-        <form onSubmit={onAddCard}>
-          <input type="text" ref={cardDescriptionRef} />
-          <button type="submit">Add</button>
-        </form>
-      )}
       {addListForm && (
         <form onSubmit={onAddList}>
           <input type="text" ref={listTitleRef} />
@@ -223,6 +211,7 @@ function Project({ cards, lists }: Props) {
               cards={statusList.cardsArr}
               list_id={statusList.listId}
               index={index}
+              addCard={onAddCard}
               deleteCard={onDeleteCard}
               editCard={onEditCard}
               deleteList={onDeleteList}
