@@ -24,3 +24,10 @@ CREATE TABLE cards (
   card_order SERIAL
 );
 
+-- In here, all tables may be weak entities
+-- can make it so table_id are not primary keys 
+-- instead (ex. project)
+-- project_id will reference user(user_id)
+-- FOREIGN KEY (project_id) REFERENCES user(user_id) ON DELETE CASCADE
+
+-- This way because a project can only exist if a user exists, a list can only exist if a project exists, and a card can only exist if a list exists

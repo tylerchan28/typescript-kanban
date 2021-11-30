@@ -12,7 +12,7 @@ type Props = {
     editCard: (card_id: number, list_id: number, description: string) => void;
 }
 
-function StatusList({ list_name, list_id, cards, index, deleteCard, editCard }: Props) {
+function StatusList({ list_name, list_id, cards, deleteCard, editCard }: Props) {
     const onDelete = (card_id: number) => {
         deleteCard(card_id, list_id);
     }

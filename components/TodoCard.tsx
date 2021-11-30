@@ -33,9 +33,9 @@ function TodoCard(props: Props) {
             {(provided) => (
                 <div {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef}>
                     <div className={styles.card}>
-                        <div className={styles.buttonContainer}>
-                            <button onClick={onDeleteCard} className={styles.remove}>X</button>
-                            <button onClick={() => showEditForm(!editForm)}>Edit</button>
+                        <div className={styles.button_container}>
+                            <button className={styles.button} onClick={() => showEditForm(!editForm)}>Edit</button>
+                            <button className={styles.button} onClick={onDeleteCard}>X</button>
                         </div>
                         <div>
                         { editForm ?
@@ -48,7 +48,9 @@ function TodoCard(props: Props) {
                                     <button type="submit">Save</button>
                                 </form>
                                 :
-                                props.card_description
+                                <div className={styles.card_description}>
+                                    {props.card_description}
+                                </div>
                         }
                         </div>
                     </div>

@@ -3,15 +3,30 @@
     padding: 50px;
     margin-top: 10px;
     box-shadow: 1px 1px 5px black;
-    min-width: 5vw;
+    width: 15vw;
     min-height: 10vh;
+    position: relative;
 }
 
-.card:hover .buttonContainer {
-    display: block;
+.card:hover .button_container {
+    visibility: visible;
 }
 
-.buttonContainer {
-    display: none;
+.button_container {
+    visibility: hidden;
     text-align: center;
+    position: absolute;
+    top: 0;
+    right: 0;
+    
+}
+
+.card_description {
+    text-align: center;
+}
+
+.button {
+    background: none;
+    border: none;
+    cursor: pointer;
 }

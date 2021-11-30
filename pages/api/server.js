@@ -102,6 +102,18 @@ app.prepare().then(() => {
     );
   });
 
+  server.post("/add-list", (req, res) => {
+    const { listName, projectId } = req.body;
+    client.query(
+      "INSERT INTO lists (list_name, project_id) VALUES ($1, $2) RETURNING list_id",
+      [listName, projectId],
+      (err, results) => {
+        if (err) throw err;
+        res.json(results.rows[0].list_id)
+      }
+    )
+  })
+
   server.post("/add-card", (req, res) => {
     const { list_id, card_description } = req.body;
     client.query(

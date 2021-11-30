@@ -18,22 +18,14 @@ export const onSave = (list: any) => {
 
   export const configureLists = (lists: List[]) => {
     let listMap: any = {};
-    // lists.forEach(
-    //   (list: List, index: number) =>
-    //     (listMap[index] = {
-    //       cardsArr: [],
-    //       droppableId: index,
-    //       listId: list.list_id,
-    //       listName: list.list_name,
-    //     })
-    // );
     lists.forEach(
-      (list: List, index: number) =>
+      (list: List) =>
         (listMap[list.list_id] = {
           cardsArr: [],
-          droppableId: index,
+          droppableId: list.list_id,
           listId: list.list_id,
           listName: list.list_name,
+          projectId: list.project_id
         })
     );
     return listMap;
