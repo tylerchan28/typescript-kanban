@@ -114,6 +114,19 @@ app.prepare().then(() => {
     )
   })
 
+  server.delete("/delete-list", (req, res) => {
+    const { list_id } = req.body;
+    client.query(
+      "DELETE FROM lists WHERE list_id = ($1)",
+      [list_id],
+      (err, results) => {
+        if (err) throw err;
+        res.json("deleted list")
+      }
+    )
+
+  })
+
   server.post("/add-card", (req, res) => {
     const { list_id, card_description } = req.body;
     client.query(
@@ -138,9 +151,10 @@ app.prepare().then(() => {
   })
 
   server.delete("/delete-card", (req, res) => {
+    const { card_id } = req.body; 
     client.query(
       "DELETE FROM cards WHERE card_id = ($1)",
-      [req.body.card_id],
+      [card_id],
       (err, results) => {
         if (err) throw err;
         res.json("deleted card")

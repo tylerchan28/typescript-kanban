@@ -113,8 +113,7 @@ function Project({ cards, lists }: Props) {
     axios
       .put("/edit-card", { card_id, card_description: description })
       .then(() => onSave(statusLists));
-  };
-  console.log(statusLists)
+  }
   const onAddList = (e: React.FormEvent) => {
     e.preventDefault();
     const submittedList: any = {
@@ -130,9 +129,25 @@ function Project({ cards, lists }: Props) {
         ...statusLists,
         [res.data]: submittedList
       })
+      listTitleRef.current!.value = "";
+      showAddListForm(false);
     })
-    console.log(statusLists)
   }
+
+  const onDeleteList = (list_id: number) => {
+    console.log(list_id)
+    let statusListsCopy: any = {};
+    for (let i in statusLists) {
+      if (statusLists[i].listId !== list_id) {
+        statusListsCopy[statusLists[i].listId] = statusLists[i];
+      }
+    }
+    setStatusLists(statusListsCopy)
+    axios.delete("/delete-list", { data: { list_id: list_id }})
+      .then((res) => console.log(res));
+  }
+
+
 
   const onDragEnd = (result: any, statusLists: any, setStatusLists: any) => {
     if (!result.destination) return;
@@ -210,6 +225,7 @@ function Project({ cards, lists }: Props) {
               index={index}
               deleteCard={onDeleteCard}
               editCard={onEditCard}
+              deleteList={onDeleteList}
             />
           ))}
         </DragDropContext>

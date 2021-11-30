@@ -1,7 +1,6 @@
 import styles from "../styles/TodoCard.module.css";
 import { Draggable } from "react-beautiful-dnd";
 import { useState, useRef } from "react";
-import axios from "axios";
 
 interface Props {
     index: number
