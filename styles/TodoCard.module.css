@@ -1,9 +1,10 @@
 .card {
-    border: 1px solid gray;
-    padding: 50px;
-    margin-top: 10px;
-    box-shadow: 1px 1px 5px black;
-    width: 15vw;
+    background-color: white;
+    border-bottom: 1px solid lightgray;
+    padding: 30px;
+    margin: 10px auto;
+    box-shadow: 1px 1px 3px gray;
+    width: 90%;
     min-height: 10vh;
     position: relative;
 }
@@ -31,13 +32,3 @@
     cursor: pointer;
 }
 
-/* .list_title {
-    display: flex;
-    margin-left: 20px;
-    justify-content: space-between;
-
-}
-
-.list {
-    width: 15vw;
-} */

@@ -35,7 +35,7 @@ function StatusList({ list_name, list_id, cards, deleteCard, editCard, deleteLis
     }
 
     const onDeleteList = (list_id: number) => {
-        if (confirm("Are you sure you want to delete this card?") === true) {
+        if (confirm("Are you sure you want to delete this list?") === true) {
             deleteList(list_id);
         } else {
             return;
@@ -46,27 +46,35 @@ function StatusList({ list_name, list_id, cards, deleteCard, editCard, deleteLis
             <Droppable droppableId={list_id.toString()} >
                       {(provided) => 
                         <div className={styles.list} {...provided.droppableProps} ref={provided.innerRef}>
-                            <div className={styles.list_title}>
-                                {list_name}
-                                <button onClick={() => onDeleteList(list_id)}>X</button>
-                            </div>
-                            {cards.map((card: Card, index: number) => (
-                                <TodoCard card_id={card.card_id} key={card.card_id} index={index} card_description={card.card_description} onDelete={onDeleteCard} onEdit={onEditCard} />
-                            ))}
-                            <button onClick={() => showAddCardForm(!addCardForm)}>
-                                Add Card
+                           <div className={styles.list_container}>
+                                <div className={styles.list_title}>
+                                    <div className={styles.list_name}>{list_name}</div>
+                                    <button className={styles.list_button} onClick={() => onDeleteList(list_id)}>X</button>
+                                </div>
+                                {cards.map((card: Card, index: number) => (
+                                    <TodoCard card_id={card.card_id} key={card.card_id} index={index} card_description={card.card_description} onDelete={onDeleteCard} onEdit={onEditCard} />
+                                ))}
+                                {provided.placeholder}
+                           </div>
+                           {addCardForm === false && <button className={styles.add_button} onClick={() => showAddCardForm(!addCardForm)}>
+                                    + Add Card
                             </button>
+                            }
                             {addCardForm && 
-                                <form onSubmit={(e) => onAddCard(e, list_id, cardDescriptionRef.current!.value)}>
+                                <form className={styles.add_card_form} onSubmit={(e) => onAddCard(e, list_id, cardDescriptionRef.current!.value)}>
                                     <input 
+                                        className={styles.add_card_input}
                                         type="text" 
                                         ref={cardDescriptionRef} 
+                                        required
                                     />
-                                    <button type="submit">Add</button>
+                                    <div className={styles.form_button_container}>
+                                        <button className={styles.form_button} type="submit">Add Card</button>
+                                        <button className={styles.form_button} onClick={() => showAddCardForm(false)}>X</button>
+                                    </div>
                                 </form>
                             }
-                            {provided.placeholder}
-                        </div>
+                    </div>
                       }
             </Droppable>
     )

@@ -1,10 +1,64 @@
+.list {
+    min-width: 15vw;
+}
+
+.list_container {
+    display: flex;
+    flex-direction: column;
+    background-color: #cfd8dc;
+    border-radius: 10px;
+    padding: 10px 0;
+}
+
+.list_container:hover .list_button {
+    visibility: visible;
+}
+
+.list_name {
+    font-weight: bold;
+}
+
 .list_title {
     display: flex;
     margin-left: 20px;
     justify-content: space-between;
-
 }
 
-.list {
-    width: 15vw;
+.list_button {
+    visibility: hidden;
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.add_button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-weight:normal;
+    margin-top: 10px;
+    margin-left: 5px;
+}
+
+.add_card_form {
+    display: flex;
+    flex-direction: column;
+}
+
+.add_card_input {
+    margin-top: 10px;
+    border: 1px solid gray;
+    border-radius: 3px;
+    padding: 5px
+}
+
+.form_button_container {
+    display: flex;
+    margin-top: 5px;
+}
+
+.form_button {
+    background: none;
+    border: none;
 }
