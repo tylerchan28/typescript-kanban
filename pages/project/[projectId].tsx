@@ -9,9 +9,11 @@ const { Client } = require("pg");
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { onSave, configureLists, addCards } from "../../helpers";
+import { Save, X } from "react-feather";
 interface Props {
   lists: List[];
   cards: Card[];
+  projectName: string;
 }
 
 interface StatusList {
@@ -26,7 +28,7 @@ interface IStatusList {
   [key: string]: StatusList;
 }
 
-function Project({ cards, lists }: Props) {
+function Project({ cards, lists, projectName }: Props) {
   const router = useRouter();
   const { projectId } = router.query;
   const [statusLists, setStatusLists] = useState<IStatusList>({});
@@ -96,7 +98,6 @@ function Project({ cards, lists }: Props) {
       }
     }
     let matchedCardsArr = matchedList.cardsArr;
-    console.log(matchedCardsArr);
     for (let i = 0; i < matchedCardsArr.length; i++) {
       if (matchedCardsArr[i].card_id === card_id) {
         matchedCardsArr[i].card_description = description;
@@ -184,22 +185,24 @@ function Project({ cards, lists }: Props) {
       });
     }
   };
-
   return (
     <div>
-      <div>Project {projectId}</div>
-      {lists.length > 0 && (
-        <div>
-          <button onClick={() => onSave(statusLists)}>Save Card Order</button>
+      <div className={styles.info}> 
+        <div className={styles.project_name}>{projectName}</div>
+        <div className={styles.button_container}>
+          {lists.length > 0 && (
+          <div className={styles.button_text}>
+            <button className={styles.button} onClick={() => onSave(statusLists)}>
+              <Save color="gray" size={20} />
+            </button>
+            <div>Save Order</div>
+          </div> 
+          )}
+            <button className={styles.button} onClick={() => showAddListForm(!addListForm)}>
+              <span className={styles.list_add_button}> Add a List</span>
+            </button>
         </div>
-      )}
-      <button onClick={() => showAddListForm(!addListForm)}>Add List</button>
-      {addListForm && (
-        <form onSubmit={onAddList}>
-          <input type="text" ref={listTitleRef} />
-          <button type="submit">Add</button>
-        </form>
-      )}
+      </div>
       <div className={styles.container}>
         <DragDropContext
           onDragEnd={(result) => onDragEnd(result, statusLists, setStatusLists)}
@@ -217,6 +220,15 @@ function Project({ cards, lists }: Props) {
               deleteList={onDeleteList}
             />
           ))}
+           {addListForm && (
+        <form className={styles.list_form} onSubmit={onAddList}>
+          <input className={styles.list_form_input} type="text" ref={listTitleRef} placeholder="Enter a list title..." />
+          <div className={styles.form_button_container}>
+            <button className={styles.list_add_button} type="submit">Add List</button>
+            <button className={styles.list_cancel_button} onClick={() => showAddListForm(false)}><X color="gray" size={20}/></button>
+          </div>
+        </form>
+      )}
         </DragDropContext>
       </div>
     </div>
@@ -240,7 +252,7 @@ export const getServerSideProps = async (context: any) => {
     }
   });
 
-  let lists, cards;
+  let lists, cards, projectName;
   let listIds: any = [];
   const getLists = new Promise((resolve, reject) => {
     resolve(
@@ -254,6 +266,19 @@ export const getServerSideProps = async (context: any) => {
     lists = results.rows;
     lists.forEach((list: any) => listIds.push(+list.list_id));
   });
+
+  const getTitle = new Promise((resolve, reject) => {
+    resolve(
+      client.query("SELECT project_name FROM projects WHERE project_id = ($1)",
+        [context.query.projectId]
+      )
+    )
+  })
+
+  await getTitle.then((results: any) => {
+    projectName = results.rows[0].project_name;
+  })
+
   const getCards = new Promise((resolve, reject) => {
     resolve(
       client.query("SELECT * FROM cards WHERE list_id = ANY($1::int[])", [
@@ -267,8 +292,9 @@ export const getServerSideProps = async (context: any) => {
   });
   return {
     props: {
-      lists: lists,
-      cards: cards,
+      lists,
+      cards,
+      projectName
     },
   };
 };

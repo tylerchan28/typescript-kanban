@@ -1,5 +1,6 @@
 .list {
     min-width: 15vw;
+    max-width: 15vw;
 }
 
 .list_container {
@@ -47,18 +48,37 @@
 }
 
 .add_card_input {
-    margin-top: 10px;
-    border: 1px solid gray;
+    border: none;
+    border-bottom: 1px solid lightgray;
     border-radius: 3px;
-    padding: 5px
+    box-shadow: 1px 1px 3px gray;
+    font-size: 14px;
+    min-height: 10vh;
+    margin: 10px auto;
+    padding: 5px;
+    text-align: center;
+    width: 90%;
 }
 
 .form_button_container {
     display: flex;
     margin-top: 5px;
+    margin-left: 15px;
+
 }
 
-.form_button {
+.form_add_button {
+    background-color: #70abc4;
+    border: none;
+    border-radius: 3px;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    padding: 5px 10px;
+}
+
+.form_cancel_button {
     background: none;
     border: none;
+    margin-left: 2%;
 }

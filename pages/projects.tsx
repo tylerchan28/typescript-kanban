@@ -28,6 +28,7 @@ function projects({ projects, id }: Props) {
     const submittedProject: Project = ({
       user_id: id,
       project_name: projectNameRef.current!.value,
+      project_id: Math.random()
     });
     
     axios.post("http://localhost:3000/add-project", submittedProject, {headers: {
@@ -36,8 +37,7 @@ function projects({ projects, id }: Props) {
       submittedProject.project_id = res.data;
       setCurrentProjects([...currentProjects, submittedProject]);
     });
-    projectNameRef.current!.value = "";
-    console.log(currentProjects);
+    projectNameRef.current!.value = ""; 
     showProjectForm(!projectForm);
   }
   return (

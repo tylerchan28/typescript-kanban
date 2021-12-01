@@ -1,6 +1,8 @@
 import styles from "../styles/TodoCard.module.css";
 import { Draggable } from "react-beautiful-dnd";
 import { useState, useRef } from "react";
+import { Edit2, Trash2} from "react-feather";
+
 
 interface Props {
     index: number
@@ -37,8 +39,8 @@ function TodoCard(props: Props) {
                 <div {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef}>
                     <div className={styles.card}>
                         <div className={styles.button_container}>
-                            <button className={styles.button} onClick={() => showEditForm(!editForm)}>Edit</button>
-                            <button className={styles.button} onClick={onDeleteCard}>X</button>
+                            <button className={styles.button} onClick={() => showEditForm(!editForm)}><Edit2 color="gray" size={14}/></button>
+                            <button className={styles.button} onClick={onDeleteCard}><Trash2 color="gray" size={14} /></button>
                         </div>
                         <div>
                         { editForm ?
