@@ -1,9 +1,8 @@
-.container {
+.dnd_container {
     display: flex;
     flex-direction: row;
     gap: 4vw;
-    width: 100vw;
-    margin-top: 3vh;    
+    margin-top: 3vh; 
 }
 
 .info {
@@ -43,7 +42,7 @@
     background-color: #cfd8dc;
     border-radius: 10px;
     height: 8.5vh;
-    width: 15vw;
+    min-width: 15vw;
 }
 
 .list_form_input {
@@ -77,6 +76,7 @@
     background: none;
     border: none;
 }
+
 .list_add_text {
     color: black;
     font-size: 15px;

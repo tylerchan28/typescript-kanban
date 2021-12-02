@@ -195,7 +195,7 @@ function Project({ cards, lists, projectName }: Props) {
             <button className={styles.button} onClick={() => onSave(statusLists)}>
               <Save color="gray" size={20} />
             </button>
-            <div>Save Order</div>
+            <div >(Save Order)</div>
           </div> 
           )}
             <button className={styles.button} onClick={() => showAddListForm(!addListForm)}>
@@ -203,7 +203,7 @@ function Project({ cards, lists, projectName }: Props) {
             </button>
         </div>
       </div>
-      <div className={styles.container}>
+      <div className={styles.dnd_container}>
         <DragDropContext
           onDragEnd={(result) => onDragEnd(result, statusLists, setStatusLists)}
         >

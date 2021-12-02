@@ -1,7 +1,7 @@
 import styles from "../styles/TodoCard.module.css";
 import { Draggable } from "react-beautiful-dnd";
 import { useState, useRef } from "react";
-import { Edit2, Trash2} from "react-feather";
+import { Edit2, Trash2, X} from "react-feather";
 
 
 interface Props {
@@ -44,13 +44,18 @@ function TodoCard(props: Props) {
                         </div>
                         <div>
                         { editForm ?
-                                <form onSubmit={onEditCard}>
+                                <form className={styles.edit_card_form} onSubmit={onEditCard}>
                                     <input
                                         type="text"
+                                        className={styles.edit_card_input}
                                         defaultValue={props.card_description}
                                         ref={editRef}
+                                        autoFocus
                                     />
-                                    <button type="submit">Save</button>
+                                    <div className={styles.edit_button_container}>
+                                        <button className={styles.save_edit_button} type="submit">Save</button>
+                                        <button className={styles.cancel_edit_button} onClick={() => showEditForm(false)}><X color="gray" size={24}/></button>
+                                    </div>
                                 </form>
                                 :
                                 <div className={styles.card_description}>

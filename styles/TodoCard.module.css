@@ -35,6 +35,39 @@
     background: none;
     border: none;
     cursor: pointer;
-
 }
 
+.edit_card_form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.edit_card_input {
+    border: none;
+    text-align: center;
+    padding: 3px;
+    font-size: 16px;
+}
+
+.save_edit_button {
+    background-color: #70abc4;
+    border: none;
+    border-radius: 3px;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    padding: 5px 10px;
+}
+
+.cancel_edit_button {
+    background: none;
+    border: none;
+    margin-left: 2%;
+}
+
+.edit_button_container {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+}
